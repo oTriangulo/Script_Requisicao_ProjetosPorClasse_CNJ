@@ -2,6 +2,7 @@ import requests
 import json
 import pandas as pd
 from datetime import datetime, timedelta
+import os
 
 #tentar usar a biblioteca datetime para conseguir resultados melhores e mais afunilados
 
@@ -68,4 +69,6 @@ print("criado arquivo json")
 df = pd.read_json('jsonfile.json')
 
 #criando o arquivo CSV usando a biblioteca pandas e definindo as colunas e separador
-df.to_csv('csvfile.csv', encoding='utf-8', columns=['classe', 'numeroProcesso', 'tribunal', 'datahoraultimaatualizacao', 'dataajuizamento'], sep=';', index=False)
+df.to_csv('Recuperações_Judiciais.csv', encoding='utf-8', columns=['classe', 'numeroProcesso', 'tribunal', 'datahoraultimaatualizacao', 'dataajuizamento'], sep=';', index=False)
+
+os.remove("jsonfile.json")

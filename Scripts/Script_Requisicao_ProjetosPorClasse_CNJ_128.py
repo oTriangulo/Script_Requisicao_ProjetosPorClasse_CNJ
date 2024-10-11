@@ -2,6 +2,7 @@ import requests
 import json
 import pandas as pd
 from datetime import datetime, timedelta
+import os
 
 #tentar usar a biblioteca datetime para conseguir resultados melhores e mais afunilados
 
@@ -20,18 +21,22 @@ response = {
     'classe': [],
     'numeroProcesso': [],
     'tribunal': [],
+    'sistema.nome': [],
     'datahoraultimaatualizacao': [],
     'dataajuizamento': [],
+    'Localizar': [],
+    'Teste': [],
+    'log': []
 }
 
 def fetch_url(url):    
     payload = json.dumps({
-        "size": 500,
+        "size": 1000,
         "query": {
             "bool": {
                 "must": [
                     {"match": {"classe.codigo": 128}},
-                    {"range": {"dataAjuizamento": {"gte": dataMatchRangeMin, "lte": dataMatchRangeMax}}},
+                    #{"range": {"dataAjuizamento": {"gte": dataMatchRangeMin, "lte": dataMatchRangeMax}}},
                 ]
             }
         }
@@ -51,8 +56,20 @@ def fetch_url(url):
         response['classe'].append(responsebrute.json()['hits']['hits'][i]['_source']['classe']['nome'])
         response['numeroProcesso'].append("'" + responsebrute.json()['hits']['hits'][i]['_source']['numeroProcesso'] + "'")
         response['tribunal'].append(responsebrute.json()['hits']['hits'][i]['_source']['tribunal'])
-        response['datahoraultimaatualizacao'].append(responsebrute.json()['hits']['hits'][i]['_source']['dataHoraUltimaAtualizacao'])
-        response['dataajuizamento'].append(responsebrute.json()['hits']['hits'][i]['_source']['dataAjuizamento'])
+
+        formatedDate = responsebrute.json()['hits']['hits'][i]['_source']['dataHoraUltimaAtualizacao']
+        formatedDate = formatedDate[0:10]
+
+        response['datahoraultimaatualizacao'].append(formatedDate)
+
+        formatedDate2 = responsebrute.json()['hits']['hits'][i]['_source']['dataAjuizamento']
+        formatedDate2 = formatedDate2[0:10]
+
+        response['dataajuizamento'].append(formatedDate2)
+        response['sistema.nome'].append(responsebrute.json()['hits']['hits'][i]['_source']['sistema']['nome'])
+        response['Localizar'].append(" ")
+        response['Teste'].append(" ")
+        response['log'].append(" ")
 
 for i in range(len(url)):
     fetch_url(url[i])
@@ -68,4 +85,6 @@ print("criado arquivo json")
 df = pd.read_json('jsonfile.json')
 
 #criando o arquivo CSV usando a biblioteca pandas e definindo as colunas e separador
-df.to_csv('csvfile.csv', encoding='utf-8', columns=['classe', 'numeroProcesso', 'tribunal', 'datahoraultimaatualizacao', 'dataajuizamento'], sep=';', index=False)
+df.to_csv('Recuperações_Extrajudiciais.csv', encoding='utf-8', columns=['classe', 'numeroProcesso', 'tribunal', 'datahoraultimaatualizacao', 'dataajuizamento', 'sistema.nome', 'Localizar', 'Teste', 'log'], sep=';', index=False)
+
+os.remove("jsonfile.json")
